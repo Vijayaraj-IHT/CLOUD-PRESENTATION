@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloud Storage Services — Behind Every Upload</title>
+    <!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="./style.css">
+    <!-- Anime.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+  </head>
+  <body>
+    <!-- ============ GLOBAL NAVIGATION & DATA TRAIL ============ -->
+    <nav id="dot-nav" class="dot-nav" aria-label="Section navigation">
+      <ul class="dot-nav__list">
+        <li><a href="#hero" class="dot-nav__link active" aria-label="Section 1: Hero and Greeting" data-section="hero"></a></li>
+        <li><a href="#quick-check" class="dot-nav__link" aria-label="Section 2: Quick Check Poll" data-section="quick-check"></a></li>
+        <li><a href="#fundamentals" class="dot-nav__link" aria-label="Section 3: Fundamentals Storage Types" data-section="fundamentals"></a></li>
+        <li><a href="#engine-room" class="dot-nav__link" aria-label="Section 4: Technical Engine Room" data-section="engine-room"></a></li>
+        <li><a href="#comparison" class="dot-nav__link" aria-label="Section 5: Provider Comparison Table" data-section="comparison"></a></li>
+        <li><a href="#business-case" class="dot-nav__link" aria-label="Section 6: Business Case and Case Study" data-section="business-case"></a></li>
+        <li><a href="#challenges" class="dot-nav__link" aria-label="Section 7: Challenges and Cautionary Anecdote" data-section="challenges"></a></li>
+        <li><a href="#build-steps" class="dot-nav__link" aria-label="Section 8: How to Build a Cloud Project" data-section="build-steps"></a></li>
+        <li><a href="#live-demo" class="dot-nav__link" aria-label="Section 9: Live Demo Moment" data-section="live-demo"></a></li>
+        <li><a href="#benefits" class="dot-nav__link" aria-label="Section 10: Benefits to Engineers" data-section="benefits"></a></li>
+        <li><a href="#twenty-four-hour" class="dot-nav__link" aria-label="Section 11: The 24 Hour Build Segment" data-section="twenty-four-hour"></a></li>
+        <li><a href="#roadmap" class="dot-nav__link" aria-label="Section 12: Skills Roadmap" data-section="roadmap"></a></li>
+        <li><a href="#trends" class="dot-nav__link" aria-label="Section 13: Future Trends" data-section="trends"></a></li>
+        <li><a href="#conclusion" class="dot-nav__link" aria-label="Section 14: Conclusion and QA" data-section="conclusion"></a></li>
+        <li><a href="#references" class="dot-nav__link" aria-label="Section 15: References" data-section="references"></a></li>
+      </ul>
+    </nav>
+
+    <div class="data-trail" aria-hidden="true">
+      <div class="data-trail__line"></div>
+      <div class="data-trail__pulse"></div>
+    </div>
+
+    <!-- ============ SECTION 1: HERO / GREETING ============ -->
+    <section id="hero" class="section section--base hero" aria-labelledby="hero-title">
+      <div class="container hero__container">
+        <div class="hero__content">
+          <p id="hero-eyebrow" class="eyebrow font-mono" data-scramble="CLOUD STORAGE SERVICES">CLOUD STORAGE SERVICES</p>
+          <h1 id="hero-title" class="hero__headline font-display">Behind every file you've ever uploaded.</h1>
+          <p class="hero__subhead font-body">We're skipping the "what is cloud storage" basics — you already know that. Today, we're showing you what happens behind it.</p>
+        </div>
+        
+        <!-- Animated Node-Network Graphic -->
+        <div id="hero-graphic" class="hero__graphic" aria-hidden="true">
+          <svg class="node-network-svg" viewBox="0 0 450 320" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="glow-grad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#4FD1C5" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#4FD1C5" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <!-- Connecting lines -->
+            <g class="network-lines" stroke="#4FD1C5" stroke-width="2" fill="none">
+              <path d="M 60,160 L 170,80" class="draw-line" />
+              <path d="M 60,160 L 170,240" class="draw-line" />
+              <path d="M 170,80 L 280,80" class="draw-line" />
+              <path d="M 170,80 L 280,160" class="draw-line" />
+              <path d="M 170,240 L 280,160" class="draw-line" />
+              <path d="M 170,240 L 280,240" class="draw-line" />
+              <path d="M 280,80 L 390,160" class="draw-line" />
+              <path d="M 280,160 L 390,160" class="draw-line" />
+              <path d="M 280,240 L 390,160" class="draw-line" />
+            </g>
+            <!-- Node circles -->
+            <g class="network-nodes">
+              <circle cx="60" cy="160" r="10" class="node-dot" fill="#4FD1C5" />
+              <circle cx="170" cy="80" r="7" class="node-dot" fill="#4FD1C5" />
+              <circle cx="170" cy="240" r="7" class="node-dot" fill="#4FD1C5" />
+              <circle cx="280" cy="80" r="7" class="node-dot" fill="#4FD1C5" />
+              <circle cx="280" cy="160" r="8" class="node-dot" fill="#4FD1C5" />
+              <circle cx="280" cy="240" r="7" class="node-dot" fill="#4FD1C5" />
+              <!-- Pulsing primary cloud node -->
+              <circle cx="390" cy="160" r="28" fill="url(#glow-grad)" class="node-pulse-ring" />
+              <circle cx="390" cy="160" r="12" class="node-dot node-dot--cloud" fill="#F4A261" />
+            </g>
+            <!-- Labels -->
+            <text x="60" y="195" fill="#8CA0B8" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">DEVICE</text>
+            <text x="390" y="205" fill="#F4A261" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle" font-weight="700">BACKEND</text>
+          </svg>
+        </div>
+
+        <div class="hero__byline font-mono text-muted">
+          <span>Engineering Students · Cloud Computing 101 · Spring 2026</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 2: QUICK-CHECK / POLL BLOCK ============ -->
+    <section id="quick-check" class="section section--panel poll" aria-labelledby="poll-title">
+      <div class="container poll__container">
+        <p class="eyebrow font-mono">QUICK CHECK</p>
+        <h2 id="poll-title" class="poll__question font-display">"How many of you have used a free-tier cloud service without realizing it?"</h2>
+        
+        <div class="poll__interaction">
+          <button id="poll-trigger" class="btn btn--outline font-mono" aria-controls="poll-result" aria-expanded="false">
+            See the answer
+          </button>
+          
+          <div id="poll-result" class="poll__result" aria-live="polite" hidden>
+            <div class="poll__stat font-mono">
+              <span id="poll-counter">87</span><span>%</span>
+            </div>
+            <div class="progress-bar" aria-hidden="true">
+              <div id="poll-bar-fill" class="progress-bar__fill progress-bar__fill--teal"></div>
+            </div>
+            <p class="poll__explanation text-muted font-body">
+              Most people already have — Google Photos, iCloud backup, and Discord attachments all run on cloud storage.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 3: FUNDAMENTALS — STORAGE TYPES ============ -->
+    <section id="fundamentals" class="section section--base fundamentals" aria-labelledby="fundamentals-title">
+      <div class="container">
+        <p class="eyebrow font-mono">01 · FUNDAMENTALS</p>
+        <h2 id="fundamentals-title" class="section-title font-display">How your file actually travels</h2>
+        <p class="section-intro text-muted font-body">From the moment you hit upload, your file makes a journey most people never think about.</p>
+
+        <!-- 3 Cards with 3D flip-on-hover & keyboard toggles -->
+        <div class="grid grid--3-col fundamentals__cards">
+          <!-- Card 1: Object -->
+          <article class="flip-card stagger-item" tabindex="0" aria-label="Object Storage. Press Enter or Space to reveal details.">
+            <div class="flip-card__inner">
+              <div class="flip-card__front">
+                <span class="card-type font-mono text-accent">TYPE 01</span>
+                <h3 class="card-title font-display">Object storage</h3>
+                <p class="card-prompt font-mono text-muted">Hover / Click to reveal →</p>
+              </div>
+              <div class="flip-card__back">
+                <h4 class="font-mono text-accent">OBJECT STORAGE</h4>
+                <p class="font-body">Stores files as whole, self-contained units with metadata. Think: Google Photos, Amazon S3. Best for unstructured data — images, videos, backups.</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2: Block -->
+          <article class="flip-card stagger-item" tabindex="0" aria-label="Block Storage. Press Enter or Space to reveal details.">
+            <div class="flip-card__inner">
+              <div class="flip-card__front">
+                <span class="card-type font-mono text-accent">TYPE 02</span>
+                <h3 class="card-title font-display">Block storage</h3>
+                <p class="card-prompt font-mono text-muted">Hover / Click to reveal →</p>
+              </div>
+              <div class="flip-card__back">
+                <h4 class="font-mono text-accent">BLOCK STORAGE</h4>
+                <p class="font-body">Splits data into fixed-size blocks, each addressed independently. Think: Amazon EBS. Powers virtual machines and databases that need fast read/write.</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 3: File -->
+          <article class="flip-card stagger-item" tabindex="0" aria-label="File Storage. Press Enter or Space to reveal details.">
+            <div class="flip-card__inner">
+              <div class="flip-card__front">
+                <span class="card-type font-mono text-accent">TYPE 03</span>
+                <h3 class="card-title font-display">File storage</h3>
+                <p class="card-prompt font-mono text-muted">Hover / Click to reveal →</p>
+              </div>
+              <div class="flip-card__back">
+                <h4 class="font-mono text-accent">FILE STORAGE</h4>
+                <p class="font-body">Organizes data in a familiar folder/file hierarchy shared across users. Think: Google Drive, Amazon EFS. Best for shared documents and collaboration.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="fundamentals__tags font-mono">
+          <span class="tag-label text-muted">Deployment models:</span>
+          <ul class="tag-list">
+            <li class="tag">Public</li>
+            <li class="tag">Private</li>
+            <li class="tag">Hybrid</li>
+            <li class="tag">Multi-cloud</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 4: THE ENGINE ROOM (Highest Animation Budget) ============ -->
+    <section id="engine-room" class="section section--panel engine" aria-labelledby="engine-title">
+      <div class="container">
+        <p class="eyebrow font-mono">02 · THE ENGINE ROOM</p>
+        <h2 id="engine-title" class="section-title font-display">What keeps your file alive</h2>
+
+        <div class="grid grid--asymmetrical engine__grid">
+          <!-- Left Column: Durability Stat + APIs -->
+          <div class="engine__left">
+            <article class="panel panel--stat">
+              <h3 class="font-mono text-muted text-sm">DURABILITY STAT</h3>
+              <div class="stat-display font-mono">
+                <span id="durability-integer">99</span>.<span id="durability-nines" class="stat-nines">999999999</span><span class="stat-symbol">%</span>
+              </div>
+              <p class="font-mono text-accent stat-label">("11 nines")</p>
+              <p class="text-muted font-body text-sm">
+                Eleven nines of durability. At that rate, if you stored 10 million files, you'd expect to lose one roughly once every 10,000 years.
+              </p>
+            </article>
+
+            <article class="panel panel--sub">
+              <h3 class="font-display">APIs & SDKs</h3>
+              <p class="text-muted font-body text-sm">
+                Every time an app like Instagram or Netflix fetches a photo or video, it's making a request to cloud storage through an API — a structured way for software to ask, 'give me this file.'
+              </p>
+            </article>
+          </div>
+
+          <!-- Right Column: Animated Replication Trace & Failure Simulation -->
+          <div class="engine__right">
+            <article class="panel panel--diagram" aria-labelledby="replication-heading">
+              <div class="diagram-header">
+                <h3 id="replication-heading" class="font-display">Redundancy & Replication</h3>
+                <button id="simulate-failure-btn" class="btn btn--secondary btn--sm font-mono" aria-label="Simulate a single server node failure and observe automated data rerouting">
+                  Simulate Server Failure
+                </button>
+              </div>
+
+              <!-- Interactive Replication SVG -->
+              <div class="replication-graphic" aria-hidden="true">
+                <svg id="replication-svg" viewBox="0 0 500 360" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <marker id="arrow-teal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4FD1C5" />
+                    </marker>
+                    <marker id="arrow-orange" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#F4A261" />
+                    </marker>
+                  </defs>
+
+                  <!-- Source File Node -->
+                  <g class="node-source" transform="translate(40, 180)">
+                    <rect x="-30" y="-30" width="60" height="60" rx="12" fill="#0E1A2B" stroke="#4FD1C5" stroke-width="2"/>
+                    <text x="0" y="5" fill="#EDF2F7" font-family="'JetBrains Mono', monospace" font-size="12" text-anchor="middle" font-weight="700">FILE</text>
+                  </g>
+
+                  <!-- Connecting Paths for Replication Trace -->
+                  <g class="trace-paths" stroke="#4FD1C5" stroke-width="2" fill="none">
+                    <path id="path-server1" d="M 70,170 C 140,150 180,80 280,80" stroke-dasharray="6,4" marker-end="url(#arrow-teal)" />
+                    <path id="path-server2" d="M 70,180 C 170,180 170,180 280,180" stroke-dasharray="6,4" marker-end="url(#arrow-teal)" />
+                    <path id="path-server3" d="M 70,190 C 140,210 180,280 280,280" stroke-dasharray="6,4" marker-end="url(#arrow-teal)" />
+                  </g>
+
+                  <!-- Traveling Data Packets -->
+                  <circle id="packet-1" r="6" fill="#4FD1C5" cx="-10" cy="-10" />
+                  <circle id="packet-2" r="6" fill="#4FD1C5" cx="-10" cy="-10" />
+                  <circle id="packet-3" r="6" fill="#4FD1C5" cx="-10" cy="-10" />
+
+                  <!-- Reroute paths during fail simulation -->
+                  <path id="path-reroute1" d="M 320,115 L 320,145" stroke="#F4A261" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow-orange)" opacity="0" />
+
+                  <!-- Server Nodes -->
+                  <g id="node-server1" class="server-box" transform="translate(320, 80)">
+                    <rect x="-40" y="-35" width="80" height="70" rx="8" fill="#0E1A2B" stroke="#4FD1C5" stroke-width="2" />
+                    <circle cx="-20" cy="-15" r="3" fill="#4FD1C5" class="status-led" />
+                    <text x="0" y="8" fill="#EDF2F7" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">SERVER 1</text>
+                    <text x="0" y="24" fill="#8CA0B8" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle" class="server-zone">US-EAST-A</text>
+                  </g>
+
+                  <g id="node-server2" class="server-box" transform="translate(320, 180)">
+                    <rect x="-40" y="-35" width="80" height="70" rx="8" fill="#0E1A2B" stroke="#4FD1C5" stroke-width="2" />
+                    <circle cx="-20" cy="-15" r="3" fill="#4FD1C5" class="status-led" />
+                    <text x="0" y="8" fill="#EDF2F7" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">SERVER 2</text>
+                    <text x="0" y="24" fill="#8CA0B8" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle" class="server-zone">US-EAST-B</text>
+                  </g>
+
+                  <g id="node-server3" class="server-box" transform="translate(320, 280)">
+                    <rect x="-40" y="-35" width="80" height="70" rx="8" fill="#0E1A2B" stroke="#4FD1C5" stroke-width="2" />
+                    <circle cx="-20" cy="-15" r="3" fill="#4FD1C5" class="status-led" />
+                    <text x="0" y="8" fill="#EDF2F7" font-family="'JetBrains Mono', monospace" font-size="11" text-anchor="middle">SERVER 3</text>
+                    <text x="0" y="24" fill="#8CA0B8" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle" class="server-zone">US-WEST-A</text>
+                  </g>
+
+                  <!-- Status Badge appears on failure -->
+                  <g id="badge-availability" transform="translate(440, 180)" opacity="0">
+                    <rect x="-55" y="-22" width="110" height="44" rx="6" fill="#16263D" stroke="#F4A261" stroke-width="2" />
+                    <text x="0" y="-3" fill="#F4A261" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle" font-weight="700">100% ONLINE</text>
+                    <text x="0" y="13" fill="#EDF2F7" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">STILL AVAILABLE</text>
+                  </g>
+                </svg>
+              </div>
+
+              <div class="diagram-captions font-body text-sm text-muted">
+                <p>The moment you upload a file, it's copied — automatically — across multiple physical servers, often in different buildings or even different cities.</p>
+                <p id="failure-status-text" class="status-text font-mono text-accent-secondary" aria-live="polite">
+                  If one server fails? You'd never know. The other copies keep your data available without interruption.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 5: PROVIDER COMPARISON TABLE ============ -->
+    <section id="comparison" class="section section--base comparison" aria-labelledby="comparison-title">
+      <div class="container">
+        <p class="eyebrow font-mono">03 · WHO'S BUILDING IT</p>
+        <h2 id="comparison-title" class="section-title font-display">Four ways to store the same file</h2>
+
+        <div class="table-wrapper">
+          <table id="provider-table" class="data-table font-mono">
+            <thead>
+              <tr>
+                <th class="col-provider" scope="col">Provider</th>
+                <th class="col-pricing" scope="col">Pricing model</th>
+                <th class="col-tiers" scope="col">Storage tiers</th>
+                <th class="col-scale" scope="col">Scalability</th>
+                <th class="col-best" scope="col">Best for</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="stagger-row row-aws">
+                <th scope="row" class="provider-cell"><span class="accent-bar bar--aws" aria-hidden="true"></span>AWS S3</th>
+                <td data-col="pricing">Pay-as-you-go, per GB + requests</td>
+                <td data-col="tiers">Standard / Infrequent Access / Glacier</td>
+                <td data-col="scale">Virtually unlimited, industry standard</td>
+                <td data-col="best">Startups to enterprise workloads</td>
+              </tr>
+              <tr class="stagger-row row-gcp">
+                <th scope="row" class="provider-cell"><span class="accent-bar bar--gcp" aria-hidden="true"></span>Google Cloud Storage</th>
+                <td data-col="pricing">Pay-as-you-go, per GB + operations</td>
+                <td data-col="tiers">Standard / Nearline / Coldline / Archive</td>
+                <td data-col="scale">Very high, tight ML/AI integration</td>
+                <td data-col="best">Data-heavy & AI-driven apps</td>
+              </tr>
+              <tr class="stagger-row row-azure">
+                <th scope="row" class="provider-cell"><span class="accent-bar bar--azure" aria-hidden="true"></span>Azure Blob Storage</th>
+                <td data-col="pricing">Pay-as-you-go, per GB + transactions</td>
+                <td data-col="tiers">Hot / Cool / Archive</td>
+                <td data-col="scale">Very high, strong enterprise tooling</td>
+                <td data-col="best">Microsoft-stack enterprises</td>
+              </tr>
+              <tr class="stagger-row row-dropbox">
+                <th scope="row" class="provider-cell"><span class="accent-bar bar--dropbox" aria-hidden="true"></span>Dropbox / Box</th>
+                <td data-col="pricing">Flat subscription tiers</td>
+                <td data-col="tiers">Single tier, simplified</td>
+                <td data-col="scale">Limited vs. hyperscalers</td>
+                <td data-col="best">Individuals & small teams, ease of use</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 6: BUSINESS CASE ============ -->
+    <section id="business-case" class="section section--panel business" aria-labelledby="business-title">
+      <div class="container">
+        <p class="eyebrow font-mono">WHY BUSINESSES CARE</p>
+        <h2 id="business-title" class="section-title font-display">It's not just convenient — it's cheaper and safer</h2>
+
+        <div class="grid grid--4-col business__cards">
+          <!-- Card 1: Cost -->
+          <article class="card card--icon stagger-item">
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" stroke="#4FD1C5" stroke-width="2" fill="none">
+                <circle cx="20" cy="20" r="16" class="icon-draw"/>
+                <path d="M20 10 v20 M14 16 h12 M14 24 h12" class="icon-draw"/>
+              </svg>
+            </div>
+            <h3 class="font-display">Cost</h3>
+            <p class="font-mono text-accent text-sm">OpEx, not CapEx</p>
+            <p class="text-muted font-body text-sm">Pay for what you use instead of buying servers upfront.</p>
+          </article>
+
+          <!-- Card 2: Scale -->
+          <article class="card card--icon stagger-item">
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" stroke="#4FD1C5" stroke-width="2" fill="none">
+                <path d="M6 30 L16 20 L24 28 L34 14" class="icon-draw"/>
+                <path d="M24 14 h10 v10" class="icon-draw"/>
+              </svg>
+            </div>
+            <h3 class="font-display">Scale</h3>
+            <p class="font-mono text-accent text-sm">Elastic by design</p>
+            <p class="text-muted font-body text-sm">Handle 10 users or 10 million without re-architecting.</p>
+          </article>
+
+          <!-- Card 3: Security -->
+          <article class="card card--icon stagger-item">
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" stroke="#4FD1C5" stroke-width="2" fill="none">
+                <path d="M20 6 L32 12 V22 C32 29 20 35 20 35 C20 35 8 29 8 22 V12 L20 6 Z" class="icon-draw"/>
+                <path d="M16 21 l3 3 l6 -6" class="icon-draw"/>
+              </svg>
+            </div>
+            <h3 class="font-display">Security</h3>
+            <p class="font-mono text-accent text-sm">Built-in compliance</p>
+            <p class="text-muted font-body text-sm">Encryption, access control, and standards like GDPR/HIPAA baked in.</p>
+          </article>
+
+          <!-- Card 4: Recovery -->
+          <article class="card card--icon stagger-item">
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 40 40" stroke="#4FD1C5" stroke-width="2" fill="none">
+                <path d="M10 20 A10 10 0 1 1 20 30" class="icon-draw"/>
+                <path d="M10 26 v-6 h6" class="icon-draw"/>
+              </svg>
+            </div>
+            <h3 class="font-display">Recovery</h3>
+            <p class="font-mono text-accent text-sm">Disaster recovery</p>
+            <p class="text-muted font-body text-sm">Data replicated across locations survives outages, fires, even natural disasters.</p>
+          </article>
+        </div>
+
+        <!-- Case Study Callout -->
+        <article id="case-study-panel" class="case-study-panel">
+          <div class="case-study-content">
+            <span class="label font-mono text-accent">CASE STUDY</span>
+            <h3 class="font-display text-2xl">Netflix on AWS</h3>
+            <p class="font-body text-muted">
+              Netflix streams to over 300 million subscribers worldwide without owning a single data center — every video, recommendation, and account detail is served through Amazon's cloud infrastructure. It's a working example of why 'don't manage your own servers' became the industry default.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 7: CHALLENGES + CAUTIONARY ANECDOTE ============ -->
+    <section id="challenges" class="section section--base challenges" aria-labelledby="challenges-title">
+      <div class="container container--narrow">
+        <p class="eyebrow font-mono">THE FLIP SIDE</p>
+        <h2 id="challenges-title" class="section-title font-display">Cloud storage isn't risk-free</h2>
+
+        <!-- Tag row -->
+        <ul class="challenges__tags font-mono">
+          <li class="pill-tag">Vendor lock-in</li>
+          <li class="pill-tag">Latency & bandwidth cost</li>
+          <li class="pill-tag">Data sovereignty</li>
+        </ul>
+
+        <p class="font-body text-muted challenges__note">
+          Uploading is almost always free — <strong class="text-primary">downloading it back out is where the bill shows up.</strong> Egress pricing (roughly $0.09/GB on AWS S3 once you're past the free tier) is the gotcha that catches most students the first time a side project gets real traffic.
+        </p>
+
+        <!-- Amber Incident Panel -->
+        <article id="amber-panel" class="incident-panel">
+          <div class="incident-panel__header">
+            <span id="warning-icon" class="warning-icon font-mono text-accent-secondary" aria-hidden="true">⚠</span>
+            <span class="font-mono text-accent-secondary text-sm font-bold">REAL INCIDENT</span>
+          </div>
+          <p class="font-body text-primary">
+            In 2017, a misconfigured Amazon S3 bucket exposed sensitive voter data for nearly 200 million Americans — not because of a hack, but because access permissions were left open by mistake. The technology wasn't the failure; the configuration was.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 8: HOW TO BUILD A CLOUD PROJECT ============ -->
+    <section id="build-steps" class="section section--panel build-steps" aria-labelledby="build-title">
+      <div class="container">
+        <p class="eyebrow font-mono">04 · BUILDING ONE YOURSELF</p>
+        <h2 id="build-title" class="section-title font-display">Five steps from idea to deployed</h2>
+
+        <!-- Scroll-Scrubbed Step Tracker -->
+        <div id="step-tracker" class="step-tracker">
+          <div class="step-tracker__line-bg"></div>
+          <div id="step-tracker-fill" class="step-tracker__line-fill"></div>
+          
+          <ol class="step-list">
+            <li class="step-item active" data-step="1">
+              <div class="step-bubble font-mono">①</div>
+              <h3 class="step-name font-display">Pick a provider</h3>
+              <p class="step-detail font-body text-muted">Start with a free tier — AWS, GCP, Azure, or Firebase all offer one.</p>
+            </li>
+            <li class="step-item" data-step="2">
+              <div class="step-bubble font-mono">②</div>
+              <h3 class="step-name font-display">Set up storage</h3>
+              <p class="step-detail font-body text-muted">Create a bucket or container — your file's new home.</p>
+            </li>
+            <li class="step-item" data-step="3">
+              <div class="step-bubble font-mono">③</div>
+              <h3 class="step-name font-display">Configure access</h3>
+              <p class="step-detail font-body text-muted">Decide what's public, what's private, and who has permission.</p>
+            </li>
+            <li class="step-item" data-step="4">
+              <div class="step-bubble font-mono">④</div>
+              <h3 class="step-name font-display">Connect your app</h3>
+              <p class="step-detail font-body text-muted">Use an SDK or API so your app can upload/retrieve files.</p>
+            </li>
+            <li class="step-item" data-step="5">
+              <div class="step-bubble font-mono">⑤</div>
+              <h3 class="step-name font-display">Add the essentials</h3>
+              <p class="step-detail font-body text-muted">Turn on versioning, encryption, and lifecycle rules before you call it done.</p>
+            </li>
+          </ol>
+        </div>
+
+        <!-- Tools Reference Table -->
+        <div class="tools-reference">
+          <h3 class="font-display text-lg mb-2">TOOLS & ENVIRONMENT</h3>
+          <div class="table-wrapper">
+            <table class="data-table tools-table font-mono">
+              <thead>
+                <tr>
+                  <th scope="col" class="col-cat">Category</th>
+                  <th scope="col" class="col-rec">Recommended</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Storage</th><td>AWS S3 / Google Cloud Storage / Firebase Storage</td></tr>
+                <tr><th scope="row">Compute</th><td>AWS Lambda / Google Cloud Functions</td></tr>
+                <tr><th scope="row">Dev environment</th><td>VS Code + provider CLI (AWS CLI / gcloud)</td></tr>
+                <tr><th scope="row">Version control</th><td>GitHub</td></tr>
+                <tr><th scope="row">Deployment</th><td>Vercel / Netlify (frontend)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 9: LIVE DEMO MOMENT ============ -->
+    <section id="live-demo" class="section section--base live-demo" aria-labelledby="demo-title">
+      <div class="container container--wide">
+        <p class="eyebrow font-mono">SEE IT HAPPEN</p>
+        <h2 id="demo-title" class="section-title font-display">From zero to a working bucket in under a minute</h2>
+
+        <!-- Custom Video/Terminal Bezel Chrome -->
+        <div class="media-frame">
+          <div class="media-frame__header">
+            <div class="window-buttons" aria-hidden="true">
+              <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+            </div>
+            <span class="window-title font-mono">bash - cloud-deploy — 80x24</span>
+          </div>
+          
+          <div class="media-frame__viewport" id="demo-viewport">
+            <div class="media-placeholder" id="demo-overlay">
+              <button id="demo-play-btn" class="btn-play font-mono" aria-label="Play interactive demo screen recording">
+                <span class="play-icon">▶</span>
+                <span class="play-text">Start Live Demo Simulation</span>
+              </button>
+            </div>
+            <!-- Simulated Interactive Terminal display once played -->
+            <div id="demo-terminal" class="terminal-view font-mono" hidden>
+              <div class="terminal-output" id="terminal-lines"></div>
+            </div>
+          </div>
+        </div>
+        
+        <p class="demo-caption font-body text-muted text-center text-sm">
+          Screen recording: creating and configuring a storage bucket, start to finish.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 10: BENEFITS TO ENGINEERS ============ -->
+    <section id="benefits" class="section section--panel benefits" aria-labelledby="benefits-title">
+      <div class="container container--narrow">
+        <p class="eyebrow font-mono">WHY ENGINEERS LIKE IT</p>
+        <h2 id="benefits-title" class="section-title font-display">What you stop worrying about</h2>
+
+        <ul class="benefits__list font-body">
+          <li class="benefit-line">
+            <span class="arrow font-mono text-accent" aria-hidden="true">→</span>
+            <span>No infrastructure to manage — focus on your app, not server upkeep</span>
+          </li>
+          <li class="benefit-line">
+            <span class="arrow font-mono text-accent" aria-hidden="true">→</span>
+            <span>Instant scalability — your project handles growth without a rebuild</span>
+          </li>
+          <li class="benefit-line">
+            <span class="arrow font-mono text-accent" aria-hidden="true">→</span>
+            <span>Free tiers mean real projects cost nothing to start</span>
+          </li>
+          <li class="benefit-line">
+            <span class="arrow font-mono text-accent" aria-hidden="true">→</span>
+            <span>A deployed cloud project is a stronger portfolio piece than a local-only one</span>
+          </li>
+          <li class="benefit-line">
+            <span class="arrow font-mono text-accent" aria-hidden="true">→</span>
+            <span>You're learning the same tools companies use in production</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 11: THE 24-HOUR BUILD SEGMENT ============ -->
+    <section id="twenty-four-hour" class="section section--base twenty-four" aria-labelledby="build24-title">
+      <div class="container">
+        <p class="eyebrow font-mono">05 · WHAT'S POSSIBLE IN 24 HOURS</p>
+        <h2 id="build24-title" class="section-title font-display">With AI assistance, further than you'd think</h2>
+
+        <div class="tier-bars-container">
+          <!-- Beginner Tier -->
+          <div class="tier-item" data-target="30">
+            <div class="tier-header font-mono">
+              <span class="tier-label text-primary font-bold">BEGINNER</span>
+              <span class="tier-percent text-accent">30% Capability Reach</span>
+            </div>
+            <div class="progress-bar progress-bar--lg" aria-hidden="true">
+              <div class="progress-bar__fill tier-fill"></div>
+            </div>
+            <p class="tier-desc font-body text-muted">A file upload/gallery app with a working frontend and cloud backend, fully deployed</p>
+          </div>
+
+          <!-- Intermediate Tier -->
+          <div class="tier-item" data-target="65">
+            <div class="tier-header font-mono">
+              <span class="tier-label text-primary font-bold">INTERMEDIATE</span>
+              <span class="tier-percent text-accent">65% Capability Reach</span>
+            </div>
+            <div class="progress-bar progress-bar--lg" aria-hidden="true">
+              <div class="progress-bar__fill tier-fill"></div>
+            </div>
+            <p class="tier-desc font-body text-muted">A multi-user app with authentication, cloud storage, and a basic database</p>
+          </div>
+
+          <!-- Advanced Tier -->
+          <div class="tier-item tier-item--elevated" data-target="90">
+            <div class="tier-header font-mono">
+              <span class="tier-label text-accent-secondary font-bold">ADVANCED</span>
+              <span class="tier-percent text-accent-secondary">90% Capability Reach</span>
+            </div>
+            <div class="progress-bar progress-bar--lg progress-bar--elevated" aria-hidden="true">
+              <div class="progress-bar__fill tier-fill tier-fill--orange"></div>
+            </div>
+            <p class="tier-desc font-body text-primary">A small SaaS-style MVP — auth, storage, an API layer, and a simple AI feature</p>
+          </div>
+        </div>
+
+        <blockquote class="ai-callout font-mono text-accent-secondary">
+          "AI coding assistants have compressed what used to take a week of learning into a single day."
+        </blockquote>
+
+        <ul class="free-tier-anchor font-mono text-sm text-muted">
+          <li><span class="text-accent">AWS S3</span> — 5 GB free (12 mo. on legacy accounts) or $200 in credits on new signups</li>
+          <li><span class="text-accent">Google Cloud Storage</span> — 5 GB free, no expiry</li>
+          <li><span class="text-accent">Firebase Spark plan</span> — 1 GiB stored, 10 GB hosting, no expiry</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 12: SKILLS ROADMAP ============ -->
+    <section id="roadmap" class="section section--panel roadmap" aria-labelledby="roadmap-title">
+      <div class="container">
+        <p class="eyebrow font-mono">NEXT STEPS</p>
+        <h2 id="roadmap-title" class="section-title font-display">Where this leads next</h2>
+
+        <div id="roadmap-container" class="roadmap-graphic">
+          <div class="marker-container font-mono text-accent-secondary text-sm" id="you-are-here">
+            <span>You are here ▼</span>
+          </div>
+          
+          <div class="roadmap-line-wrap" aria-hidden="true">
+            <svg class="roadmap-svg" viewBox="0 0 800 60" preserveAspectRatio="none">
+              <line x1="100" y1="30" x2="700" y2="30" stroke="#8CA0B8" stroke-width="4" stroke-dasharray="8,8" opacity="0.3"/>
+              <line id="roadmap-path-line" x1="100" y1="30" x2="700" y2="30" stroke="#4FD1C5" stroke-width="4" class="draw-roadmap"/>
+            </svg>
+          </div>
+
+          <ul class="roadmap-nodes font-body">
+            <li class="roadmap-node active" id="node-today">
+              <div class="node-circle" aria-hidden="true">●</div>
+              <h3 class="font-display text-primary">Cloud storage</h3>
+              <span class="font-mono text-xs text-accent">(today)</span>
+            </li>
+            <li class="roadmap-node">
+              <div class="node-circle text-muted" aria-hidden="true">○</div>
+              <h3 class="font-display text-primary">IAM & Security</h3>
+              <span class="font-mono text-xs text-muted">Access control</span>
+            </li>
+            <li class="roadmap-node">
+              <div class="node-circle text-muted" aria-hidden="true">○</div>
+              <h3 class="font-display text-primary">Infrastructure-as-Code</h3>
+              <span class="font-mono text-xs text-muted">(Terraform)</span>
+            </li>
+            <li class="roadmap-node">
+              <div class="node-circle text-muted" aria-hidden="true">○</div>
+              <h3 class="font-display text-primary">CI/CD pipelines</h3>
+              <span class="font-mono text-xs text-muted">Automation</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 13: FUTURE TRENDS ============ -->
+    <section id="trends" class="section section--base trends" aria-labelledby="trends-title">
+      <div class="container container--narrow">
+        <p class="eyebrow font-mono">WHAT'S NEXT</p>
+        <h2 id="trends-title" class="section-title font-display">Two trends worth watching</h2>
+
+        <div class="grid grid--2-col trends__grid">
+          <article class="card card--quiet quiet-fade">
+            <h3 class="font-display text-xl text-accent">Edge storage</h3>
+            <p class="font-body text-muted">Data stored closer to users geographically, cutting latency for real-time apps.</p>
+          </article>
+          
+          <article class="card card--quiet quiet-fade">
+            <h3 class="font-display text-xl text-accent">AI-driven optimization</h3>
+            <p class="font-body text-muted">Storage systems that automatically move, compress, and tier data based on usage patterns.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 14: CONCLUSION & Q&A ============ -->
+    <section id="conclusion" class="section section--panel conclusion" aria-labelledby="conclusion-title">
+      <div class="container container--narrow">
+        <h2 id="conclusion-title" class="closing-headline font-display">
+          THAT'S WHAT HAPPENS BEHIND THE UPLOAD BUTTON.
+        </h2>
+
+        <!-- Recap checkmarks -->
+        <div class="recap-block font-body">
+          <p class="font-mono text-muted text-sm mb-3">RECAP:</p>
+          <ul class="recap-list">
+            <li class="recap-item">
+              <svg class="check-svg" viewBox="0 0 24 24" stroke="#4FD1C5" stroke-width="3" fill="none" aria-hidden="true">
+                <polyline points="4 12 9 17 20 6" class="draw-check"/>
+              </svg>
+              <span>How cloud storage actually works</span>
+            </li>
+            <li class="recap-item">
+              <svg class="check-svg" viewBox="0 0 24 24" stroke="#4FD1C5" stroke-width="3" fill="none" aria-hidden="true">
+                <polyline points="4 12 9 17 20 6" class="draw-check"/>
+              </svg>
+              <span>Who's building it, and how they compare</span>
+            </li>
+            <li class="recap-item">
+              <svg class="check-svg" viewBox="0 0 24 24" stroke="#4FD1C5" stroke-width="3" fill="none" aria-hidden="true">
+                <polyline points="4 12 9 17 20 6" class="draw-check"/>
+              </svg>
+              <span>How to build your own — and what's possible in 24 hours</span>
+            </li>
+            <li class="recap-item">
+              <svg class="check-svg" viewBox="0 0 24 24" stroke="#4FD1C5" stroke-width="3" fill="none" aria-hidden="true">
+                <polyline points="4 12 9 17 20 6" class="draw-check"/>
+              </svg>
+              <span>Where to go next</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Anticipated Q&A Accordion (Keyboard & Screen Reader Accessible) -->
+        <div class="qa-section">
+          <h3 class="font-display text-xl mb-4">Anticipated questions</h3>
+          <div id="qa-accordion" class="accordion" role="region" aria-label="Questions and Answers">
+            
+            <div class="accordion-item">
+              <button id="qa-btn-1" class="accordion-trigger font-body" aria-expanded="false" aria-controls="qa-panel-1">
+                <span class="question-text">Is cloud storage actually cheaper than local storage?</span>
+                <span class="accordion-icon font-mono" aria-hidden="true">+</span>
+              </button>
+              <div id="qa-panel-1" class="accordion-panel font-body text-muted" role="region" aria-labelledby="qa-btn-1" hidden>
+                <p>For most use cases, yes — you avoid upfront hardware costs and only pay for what you use, but heavy, constant usage at scale can eventually cost more than owning infrastructure.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button id="qa-btn-2" class="accordion-trigger font-body" aria-expanded="false" aria-controls="qa-panel-2">
+                <span class="question-text">What happens if a cloud provider goes down?</span>
+                <span class="accordion-icon font-mono" aria-hidden="true">+</span>
+              </button>
+              <div id="qa-panel-2" class="accordion-panel font-body text-muted" role="region" aria-labelledby="qa-btn-2" hidden>
+                <p>Reputable providers replicate data across multiple physical locations, so a single outage rarely causes data loss — though it can cause temporary access issues.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button id="qa-btn-3" class="accordion-trigger font-body" aria-expanded="false" aria-controls="qa-panel-3">
+                <span class="question-text">Is my data actually private in the cloud?</span>
+                <span class="accordion-icon font-mono" aria-hidden="true">+</span>
+              </button>
+              <div id="qa-panel-3" class="accordion-panel font-body text-muted" role="region" aria-labelledby="qa-btn-3" hidden>
+                <p>It can be, if configured correctly — encryption and access controls exist, but misconfiguration (like the 2017 incident) is the real-world risk, not the technology itself.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button id="qa-btn-4" class="accordion-trigger font-body" aria-expanded="false" aria-controls="qa-panel-4">
+                <span class="question-text">Which provider should a student start with?</span>
+                <span class="accordion-icon font-mono" aria-hidden="true">+</span>
+              </button>
+              <div id="qa-panel-4" class="accordion-panel font-body text-muted" role="region" aria-labelledby="qa-btn-4" hidden>
+                <p>Whichever has the most generous free tier for your use case — AWS, GCP, and Firebase are all solid starting points with strong documentation.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button id="qa-btn-5" class="accordion-trigger font-body" aria-expanded="false" aria-controls="qa-panel-5">
+                <span class="question-text">Do I need to know how to code to use cloud storage?</span>
+                <span class="accordion-icon font-mono" aria-hidden="true">+</span>
+              </button>
+              <div id="qa-panel-5" class="accordion-panel font-body text-muted" role="region" aria-labelledby="qa-btn-5" hidden>
+                <p>Basic usage (uploading files via a console) needs no code — connecting it to an app does need some programming, though AI tools have lowered that bar significantly.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button id="qa-btn-6" class="accordion-trigger font-body" aria-expanded="false" aria-controls="qa-panel-6">
+                <span class="question-text">What's the difference between cloud storage and cloud computing?</span>
+                <span class="accordion-icon font-mono" aria-hidden="true">+</span>
+              </button>
+              <div id="qa-panel-6" class="accordion-panel font-body text-muted" role="region" aria-labelledby="qa-btn-6" hidden>
+                <p>Storage holds your data; computing runs your application logic. Most real projects use both together.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button id="qa-btn-7" class="accordion-trigger font-body" aria-expanded="false" aria-controls="qa-panel-7">
+                <span class="question-text">How does cloud storage handle really large files?</span>
+                <span class="accordion-icon font-mono" aria-hidden="true">+</span>
+              </button>
+              <div id="qa-panel-7" class="accordion-panel font-body text-muted" role="region" aria-labelledby="qa-btn-7" hidden>
+                <p>Most providers support multipart uploads, breaking large files into chunks uploaded in parallel, then reassembled.</p>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <button id="qa-btn-8" class="accordion-trigger font-body" aria-expanded="false" aria-controls="qa-panel-8">
+                <span class="question-text">Is vendor lock-in a real problem?</span>
+                <span class="accordion-icon font-mono" aria-hidden="true">+</span>
+              </button>
+              <div id="qa-panel-8" class="accordion-panel font-body text-muted" role="region" aria-labelledby="qa-btn-8" hidden>
+                <p>It can be — moving large amounts of data between providers costs time and money, so it's worth considering portability early in a project.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="final-cta text-center">
+          <p class="font-display text-3xl font-bold text-accent">Questions?</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECTION 15: REFERENCES ============ -->
+    <section id="references" class="section section--base references" aria-labelledby="references-title">
+      <div class="container container--narrow">
+        <p class="eyebrow font-mono">SOURCES</p>
+        <h2 id="references-title" class="section-title font-display">References</h2>
+
+        <ol class="references-list font-mono text-sm">
+          <li><span class="text-muted">Amazon S3 "11 nines" durability figure —</span> <a href="https://aws.amazon.com/s3/storage-classes/" target="_blank" rel="noopener">AWS, "Amazon S3 Storage Classes"</a></li>
+          <li><span class="text-muted">2017 misconfigured S3 bucket / 198M voter records —</span> <a href="https://www.upguard.com/breaches/the-rnc-files" target="_blank" rel="noopener">UpGuard, "The RNC Files: Inside the Largest US Voter Data Leak"</a></li>
+          <li><span class="text-muted">Netflix running on AWS —</span> <a href="https://aws.amazon.com/solutions/case-studies/netflix-case-study" target="_blank" rel="noopener">AWS, "Netflix Case Study"</a></li>
+          <li><span class="text-muted">AWS S3 free-tier terms (5 GB / 12 mo. legacy, $200 credit on new accounts) —</span> <a href="https://aws.amazon.com/s3/pricing/" target="_blank" rel="noopener">AWS, "Amazon S3 Pricing"</a></li>
+          <li><span class="text-muted">AWS S3 egress / data-transfer-out pricing —</span> <a href="https://aws.amazon.com/s3/pricing/" target="_blank" rel="noopener">AWS, "Amazon S3 Pricing"</a></li>
+          <li><span class="text-muted">Google Cloud Storage free tier (5 GB, no expiry) —</span> <a href="https://cloud.google.com/free" target="_blank" rel="noopener">Google Cloud, "Free Trial and Free Tier"</a></li>
+          <li><span class="text-muted">Firebase Spark plan limits (1 GiB storage, 10 GB hosting) —</span> <a href="https://firebase.google.com/pricing" target="_blank" rel="noopener">Firebase, "Pricing Plans"</a></li>
+        </ol>
+
+        <p class="font-body text-muted references__note">Figures current as of July 2026 — cloud pricing and free-tier terms change often, so verify against the provider's pricing page before quoting exact numbers.</p>
+      </div>
+    </section>
+
+    <!-- Vanilla JavaScript (defer or type="module" ensures execution after DOM parsing) -->
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
