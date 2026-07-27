@@ -892,7 +892,13 @@
       </div>
     </section>
 
-    <!-- Vanilla JavaScript (defer or type="module" ensures execution after DOM parsing) -->
-    <script type="module" src="./script.js"></script>
+    <!--
+      Plain classic scripts, no modules and no build step, so this file works
+      when opened directly from disk (file://). `defer` keeps them non-blocking
+      and guarantees they execute in order after the DOM is parsed.
+      anime.js registers the global `window.anime` that script.js uses.
+    -->
+    <script defer src="./vendor/anime.js"></script>
+    <script defer src="./script.js"></script>
   </body>
 </html>

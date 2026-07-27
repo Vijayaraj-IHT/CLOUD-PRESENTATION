@@ -3,18 +3,18 @@
  * Zero-dependency static server for the deck.
  *
  * Lets you present straight from a clean clone with no `npm install`:
- *   node tools/serve.mjs [port]
+ *   node tools/serve.js [port]
  *
- * Vite (`npm run dev`) is nicer for editing, but this is the fallback that
- * always works — useful on a locked-down lab machine or a venue laptop.
+ * You do not need this to view the deck — index.html opens directly from disk.
+ * It is only useful if you want a real http:// origin (for DevTools features
+ * that file:// restricts, or to view the deck from a phone on the same wifi).
  */
 
-import { createServer } from "node:http";
-import { readFile, stat } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+const { createServer } = require("node:http");
+const { readFile, stat } = require("node:fs/promises");
+const path = require("node:path");
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = path.resolve(__dirname, "..");
 const PORT = Number(process.argv[2] || process.env.PORT || 4173);
 
 const MIME = {
@@ -68,5 +68,6 @@ const server = createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`\n  Cloud Storage Presentation`);
   console.log(`  → http://localhost:${PORT}\n`);
-  console.log(`  Press ? in the deck for keyboard shortcuts. Ctrl+C to stop.\n`);
+  console.log(`  Press ? in the deck for keyboard shortcuts. Ctrl+C to stop.`);
+  console.log(`  (Not required — you can also just open index.html directly.)\n`);
 });

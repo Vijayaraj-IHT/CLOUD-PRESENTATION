@@ -1,15 +1,19 @@
 /**
  * CLOUD STORAGE SERVICES PRESENTATION — SCRIPT.JS
  *
- * Standalone build: anime.js v3.2.2 is bundled from ./vendor (no CDN, no network).
+ * Plain browser JavaScript. No build step, no modules, no dependencies to
+ * install. Loaded with a classic <script defer> tag so it runs straight from a
+ * file:// URL — ES modules would be blocked by CORS when opened by double-click.
+ *
+ * anime.js v3.2.2 is loaded from ./vendor/anime.js before this file and
+ * registers itself as the global `window.anime` (no CDN, no network).
+ *
  * Organized into clear, independent functions per section.
  * Pre-checks prefers-reduced-motion independently inside every single animation function.
  */
 
-import anime from './vendor/anime.es.js';
-
-/* Expose for the guards used throughout this file and for console debugging. */
-window.anime = anime;
+(function () {
+  'use strict';
 
 /* ============================================
    LIFECYCLE
@@ -1149,3 +1153,5 @@ function initProgressBar() {
   window.addEventListener('resize', update, { passive: true });
   update();
 }
+
+})();

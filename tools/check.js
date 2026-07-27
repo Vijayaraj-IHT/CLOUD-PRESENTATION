@@ -6,14 +6,13 @@
  * that actually breaks this project: a JS selector pointing at markup that no
  * longer exists, a re-introduced network dependency, or a duplicate id.
  *
- * Usage: npm run check
+ * Usage: node tools/check.js
  */
 
-import { readFileSync, existsSync, statSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+const { readFileSync, existsSync, statSync } = require("node:fs");
+const path = require("node:path");
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = path.resolve(__dirname, "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
 
 let failures = 0;
@@ -42,9 +41,8 @@ for (const f of [
   "index.html",
   "style.css",
   "script.js",
-  "vendor/anime.es.js",
+  "vendor/anime.js",
   "vendor/fonts.css",
-  "package.json",
   "README.md",
 ]) {
   existsSync(path.join(ROOT, f))
@@ -220,12 +218,19 @@ rmChecks >= 10
 /* ------------------------------------------------------------------ */
 group("Code hygiene");
 
-!/window\.anime\s*=\s*window\.anime\s*\|\|/.test(js) &&
-js.includes("import anime from './vendor/anime.es.js'")
-  ? ok("anime.js imported as a module (not a global CDN)")
-  : fail("anime.js is not imported from vendor/");
+/<script[^>]+src=["']\.\/vendor\/anime\.js["']/.test(html)
+  ? ok("anime.js loaded locally from vendor/ (not a CDN)")
+  : fail("anime.js is not loaded from vendor/");
 
-const animeVersion = read("vendor/anime.es.js").match(/anime\.js v([\d.]+)/);
+!/<script[^>]+type=["']module["']/.test(html)
+  ? ok("no ES modules — runs from file:// without a server")
+  : fail("a <script type=\"module\"> would be CORS-blocked on file://");
+
+!/\bimport\s+.*\bfrom\s+['"]/.test(js)
+  ? ok("script.js is plain classic JavaScript (no import statements)")
+  : fail("script.js still uses ES module imports");
+
+const animeVersion = read("vendor/anime.js").match(/anime\.js v([\d.]+)/);
 animeVersion
   ? ok(`vendored anime.js v${animeVersion[1]}`)
   : fail("cannot determine vendored anime.js version");
@@ -234,11 +239,16 @@ animeVersion
   ? ok("no duplicate src/ implementation")
   : fail("src/ still exists — two parallel implementations");
 
-const pkg = JSON.parse(read("package.json"));
-const deps = Object.keys(pkg.dependencies || {});
-deps.length === 0
-  ? ok("zero runtime dependencies")
-  : fail(`unexpected runtime deps: ${deps.join(", ")}`);
+!existsSync(path.join(ROOT, "package.json"))
+  ? ok("no package.json — nothing to install")
+  : fail("package.json reintroduces a toolchain");
+
+const stray = ["vite.config.ts", "tsconfig.json", "node_modules", "dist"].filter((f) =>
+  existsSync(path.join(ROOT, f))
+);
+stray.length === 0
+  ? ok("no build artefacts or config (pure HTML/CSS/JS)")
+  : fail(`build tooling present: ${stray.join(", ")}`);
 
 /* ------------------------------------------------------------------ */
 group("Content");

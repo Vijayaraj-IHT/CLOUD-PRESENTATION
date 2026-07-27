@@ -1,5 +1,11 @@
 # Code Analysis — `CLOUD-PRESENTATION` (branch point: `main` @ `816cf79`)
 
+> **Historical document.** This review describes the repository *as it was* at commit
+> `816cf79`, before the rewrite. Everything it recommends has since been done: the
+> duplicate React implementation was deleted, the CDN and Google Fonts dependencies
+> were vendored, and the build step was removed entirely. The project is now plain
+> HTML/CSS/JS — see `README.md` for the current state. Kept for the rationale.
+
 A review of every code artefact currently on `main`. The repo holds **two complete,
 independent implementations of the same "Cloud Storage Services" slide deck**, plus a
 Vite/React/Tailwind toolchain that only builds one of them.

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deck Self-Test</title>
+<style>
+  :root { --ok:#27c93f; --bad:#ff5f56; --muted:#8CA0B8; --bg:#0E1A2B; --panel:#16263D; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px;
+    background: var(--bg); color: #EDF2F7;
+    font: 14px/1.6 ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  p.lede { color: var(--muted); margin: 0 0 24px; max-width: 70ch; }
+  #summary { padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: 700; }
+  #summary.pass { background: rgba(39,201,63,.12); border: 1px solid var(--ok); color: var(--ok); }
+  #summary.fail { background: rgba(255,95,86,.12); border: 1px solid var(--bad); color: var(--bad); }
+  #summary.busy { background: var(--panel); border: 1px solid var(--muted); color: var(--muted); }
+  .grp { margin: 22px 0 8px; font-weight: 700; color: #4FD1C5; text-transform: uppercase; font-size: .78rem; letter-spacing: .08em; }
+  li { list-style: none; padding: 3px 0; }
+  ul { margin: 0; padding: 0; }
+  .pass::before { content: "✔ "; color: var(--ok); }
+  .fail::before { content: "✘ "; color: var(--bad); }
+  .fail { color: var(--bad); }
+  .note { color: var(--muted); }
+  iframe { position: absolute; width: 1280px; height: 900px; left: -20000px; top: 0; border: 0; }
+</style>
+</head>
+<body>
+  <h1>Cloud Storage Deck — Self-Test</h1>
+  <p class="lede">
+    Loads the real <code>index.html</code> in a hidden frame and drives its
+    interactive features. No install, no Node, no build step — just open this
+    file in a browser. Works from <code>file://</code> in Firefox and Safari; in
+    Chrome, <code>file://</code> frames are sandboxed, so use
+    <code>node tools/serve.js</code> and open
+    <code>http://localhost:4173/tools/self-test.html</code>.
+  </p>
+
+  <div id="summary" class="busy">Running…</div>
+  <div id="out"></div>
+  <iframe id="frame" src="../index.html" title="Deck under test"></iframe>
+
+<script>
+(function () {
+  'use strict';
+
+  var out = document.getElementById('out');
+  var summary = document.getElementById('summary');
+  var passed = 0, failed = 0;
+
+  function group(name) {
+    var h = document.createElement('div');
+    h.className = 'grp';
+    h.textContent = name;
+    out.appendChild(h);
+    var ul = document.createElement('ul');
+    out.appendChild(ul);
+    return ul;
+  }
+
+  function assert(ul, name, cond, detail) {
+    var li = document.createElement('li');
+    li.className = cond ? 'pass' : 'fail';
+    li.textContent = name + (detail ? '  — ' + detail : '');
+    ul.appendChild(li);
+    cond ? passed++ : failed++;
+    return cond;
+  }
+
+  function finish() {
+    summary.className = failed ? 'fail' : 'pass';
+    summary.textContent = failed
+      ? failed + ' of ' + (passed + failed) + ' checks FAILED'
+      : 'All ' + passed + ' checks passed';
+  }
+
+  function fatal(msg) {
+    summary.className = 'fail';
+    summary.textContent = msg;
+  }
+
+  var frame = document.getElementById('frame');
+
+  frame.addEventListener('load', function () {
+    var w, d;
+    try {
+      w = frame.contentWindow;
+      d = w.document;
+      if (!d || !d.body) throw new Error('no document');
+    } catch (e) {
+      fatal('Cannot read the frame (browser blocked file:// access). ' +
+            'Run: node tools/serve.js  then open this page over http://localhost:4173');
+      return;
+    }
+
+    // Let deferred scripts finish booting.
+    setTimeout(function () { run(w, d); }, 500);
+  });
+
+  function run(w, d) {
+    var g;
+
+    /* ---------------- Boot ---------------- */
+    g = group('Boot');
+    assert(g, 'deck booted (deck-ready class)', d.documentElement.classList.contains('deck-ready'));
+    assert(g, 'anime.js global available', typeof w.anime === 'function');
+    assert(g, '15 sections rendered', d.querySelectorAll('section[id]').length === 15,
+           d.querySelectorAll('section[id]').length + ' found');
+    assert(g, 'no ES module scripts', d.querySelectorAll('script[type="module"]').length === 0);
+
+    /* ---------------- Chrome ---------------- */
+    g = group('Presenter chrome');
+    assert(g, 'scroll progress bar present', !!d.getElementById('scroll-progress'));
+    assert(g, 'shortcut help present', !!d.getElementById('shortcut-help'));
+    assert(g, 'skip link present', !!d.querySelector('.skip-link'));
+    assert(g, 'dot nav has 15 links', d.querySelectorAll('.dot-nav__link').length === 15);
+
+    /* ---------------- Poll ---------------- */
+    g = group('Quick-check poll');
+    var pollBtn = d.getElementById('poll-trigger');
+    var pollRes = d.getElementById('poll-result');
+    assert(g, 'result hidden initially', pollRes.hidden);
+    pollBtn.click();
+    assert(g, 'reveals on click', !pollRes.hidden);
+
+    /* ---------------- Flip cards ---------------- */
+    g = group('Flip cards (a11y)');
+    var card = d.querySelector('.flip-card');
+    assert(g, 'role="button" exposed', card.getAttribute('role') === 'button');
+    assert(g, 'aria-expanded=false initially', card.getAttribute('aria-expanded') === 'false');
+    card.click();
+    assert(g, 'flips on click', card.classList.contains('is-flipped'));
+    assert(g, 'aria-expanded syncs to true', card.getAttribute('aria-expanded') === 'true');
+    card.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assert(g, 'Escape unflips', !card.classList.contains('is-flipped'));
+    assert(g, 'aria-expanded back to false', card.getAttribute('aria-expanded') === 'false');
+
+    /* ---------------- Failure simulation ---------------- */
+    g = group('Server failure simulation');
+    var sim = d.getElementById('simulate-failure-btn');
+    var status = d.getElementById('failure-status-text');
+    sim.click();
+    assert(g, 'engages', /FAILED/.test(status.innerHTML));
+    assert(g, 'aria-pressed=true', sim.getAttribute('aria-pressed') === 'true');
+    sim.click();
+    assert(g, 'resets (two-way toggle)', !/FAILED/.test(status.innerHTML));
+    assert(g, 'aria-pressed=false', sim.getAttribute('aria-pressed') === 'false');
+
+    /* ---------------- Accordion ---------------- */
+    g = group('Q&A accordion');
+    var acc = d.querySelector('.accordion-trigger');
+    var panel = d.getElementById(acc.getAttribute('aria-controls'));
+    assert(g, 'panel hidden initially', panel.hidden);
+    acc.click();
+    assert(g, 'opens', !panel.hidden && acc.getAttribute('aria-expanded') === 'true');
+    acc.click();
+    assert(g, 'closes', panel.hidden);
+
+    /* ---------------- Keyboard ---------------- */
+    g = group('Keyboard shortcuts');
+    var help = d.getElementById('shortcut-help');
+    d.dispatchEvent(new w.KeyboardEvent('keydown', { key: '?', bubbles: true }));
+    assert(g, '? opens help', !help.hasAttribute('hidden'));
+    d.dispatchEvent(new w.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    assert(g, 'Escape closes help', help.hasAttribute('hidden'));
+
+    /* ---------------- Terminal (async) ---------------- */
+    g = group('Live demo terminal');
+    var play = d.getElementById('demo-play-btn');
+    var lines = d.getElementById('terminal-lines');
+    play.click();
+    assert(g, 'terminal revealed', !d.getElementById('demo-terminal').hidden);
+
+    var waited = 0;
+    (function poll() {
+      var n = lines.children.length;
+      if (n >= 7 || waited > 6000) {
+        assert(g, 'prints all 7 transcript lines', n === 7, n + ' printed');
+        assert(g, 'replay control shown', !d.getElementById('demo-replay-btn').hidden);
+        finish();
+        return;
+      }
+      waited += 200;
+      setTimeout(poll, 200);
+    })();
+  }
+})();
+</script>
+</body>
+</html>

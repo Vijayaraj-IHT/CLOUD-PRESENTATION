@@ -1,7 +1,6 @@
-# Dependencies
+# This project is plain HTML/CSS/JS — there is nothing to install or build.
+# These entries only guard against tooling being reintroduced by accident.
 node_modules/
-
-# Build output — regenerate with `npm run build`
 dist/
 
 # Editor / OS
@@ -11,5 +10,4 @@ dist/
 *.swp
 
 # Logs
-npm-debug.log*
 *.log
