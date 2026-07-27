@@ -1,19 +1,25 @@
-import path from "path";
-import { fileURLToPath } from "url";
-import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// https://vite.dev/config/
+// The deck must run from a file:// URL with no network, so every asset
+// (fonts, anime.js, CSS, JS) is inlined into a single index.html.
 export default defineConfig({
-  plugins: [react(), tailwindcss(), viteSingleFile()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "src"),
-    },
+  root: __dirname,
+  base: "./",
+  build: {
+    outDir: "dist",
+    emptyOutDir: true,
+    // Inline every asset regardless of size (fonts are ~24kB each).
+    assetsInlineLimit: Number.MAX_SAFE_INTEGER,
+    cssCodeSplit: false,
+    target: "es2020",
+    reportCompressedSize: true,
   },
+  plugins: [
+    viteSingleFile({ removeViteModuleLoader: true }),
+  ],
 });

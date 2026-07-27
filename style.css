@@ -462,7 +462,9 @@ body {
   transform-style: preserve-3d;
 }
 
-.flip-card:hover .flip-card__inner,
+/* Flip is driven solely by the explicit toggle (click / Enter / Space).
+   The old `:hover` rule fought the click state — a mouse user who clicked and
+   then moved the pointer away saw the card flip twice. */
 .flip-card.is-flipped .flip-card__inner {
   transform: rotateY(180deg);
 }
@@ -1451,4 +1453,201 @@ body {
   font-size: 0.85rem;
   font-style: italic;
   max-width: 60ch;
+}
+
+/* ============================================
+   STANDALONE TOOL CHROME
+   Skip link, scroll progress, shortcut help, noscript banner, demo controls.
+   ============================================ */
+
+/* ---------- Skip link ---------- */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 200;
+  padding: 12px 20px;
+  background: var(--accent-primary);
+  color: var(--bg-base);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  border-radius: 0 0 8px 0;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* ---------- No-JS banner ---------- */
+.noscript-banner {
+  padding: 14px 20px;
+  background: rgba(244, 162, 97, 0.12);
+  border-bottom: 1px solid rgba(244, 162, 97, 0.4);
+  color: var(--accent-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* ---------- Scroll progress ---------- */
+.scroll-progress-track {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(140, 160, 184, 0.15);
+  z-index: 120;
+}
+
+.scroll-progress-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 0 12px rgba(79, 209, 197, 0.6);
+}
+
+/* ---------- Keyboard shortcut panel ---------- */
+.shortcut-help {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 150;
+  max-width: 320px;
+  padding: 20px 24px;
+  background: var(--bg-panel);
+  border: 1px solid rgba(79, 209, 197, 0.35);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.shortcut-help[hidden] {
+  display: none;
+}
+
+.shortcut-help__title {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+  margin-bottom: 14px;
+}
+
+.shortcut-help__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.shortcut-help__list > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.shortcut-help__list dt {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.shortcut-help__list dd {
+  margin: 0;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.shortcut-help kbd {
+  display: inline-block;
+  min-width: 22px;
+  padding: 2px 6px;
+  background: var(--bg-base);
+  border: 1px solid rgba(140, 160, 184, 0.35);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* ---------- Demo replay control ---------- */
+.demo-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.demo-controls .btn[hidden] {
+  display: none;
+}
+
+.demo-controls .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ---------- Focus visibility (global) ---------- */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+section:focus {
+  outline: none;
+}
+
+/* ---------- Print / PDF export ---------- */
+@media print {
+  .dot-nav,
+  .data-trail,
+  .scroll-progress-track,
+  .shortcut-help,
+  .skip-link,
+  .demo-controls {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  .section {
+    page-break-after: always;
+    break-after: page;
+    min-height: auto !important;
+    padding: 24px !important;
+  }
+
+  .stagger-item,
+  .stagger-row,
+  .quiet-fade,
+  .benefit-line {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .draw-line,
+  .draw-roadmap,
+  .icon-draw,
+  .draw-check {
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .shortcut-help {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress-bar {
+    transition: none !important;
+  }
 }

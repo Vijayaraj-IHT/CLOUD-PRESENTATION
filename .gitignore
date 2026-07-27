@@ -1,3 +1,15 @@
+# Dependencies
 node_modules/
+
+# Build output — regenerate with `npm run build`
 dist/
+
+# Editor / OS
 .DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Logs
+npm-debug.log*
+*.log

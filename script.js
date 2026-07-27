@@ -1,33 +1,107 @@
 /**
  * CLOUD STORAGE SERVICES PRESENTATION — SCRIPT.JS
+ *
+ * Standalone build: anime.js v3.2.2 is bundled from ./vendor (no CDN, no network).
  * Organized into clear, independent functions per section.
  * Pre-checks prefers-reduced-motion independently inside every single animation function.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  initNavigation();
-  initDataTrail();
-  initHero();
-  initQuickCheck();
-  initStorageTypes();
-  initEngineRoom();
-  initProviderTable();
-  initBusinessCase();
-  initChallenges();
-  initBuildSteps();
-  initLiveDemo();
-  initBenefits();
-  initTwentyFourHour();
-  initRoadmap();
-  initFutureTrends();
-  initConclusion();
-});
+import anime from './vendor/anime.es.js';
+
+/* Expose for the guards used throughout this file and for console debugging. */
+window.anime = anime;
+
+/* ============================================
+   LIFECYCLE
+   ============================================ */
+const SECTION_INITS = [
+  initNavigation,
+  initDataTrail,
+  initHero,
+  initQuickCheck,
+  initStorageTypes,
+  initEngineRoom,
+  initProviderTable,
+  initBusinessCase,
+  initChallenges,
+  initBuildSteps,
+  initLiveDemo,
+  initBenefits,
+  initTwentyFourHour,
+  initRoadmap,
+  initFutureTrends,
+  initConclusion,
+  initKeyboardNav,
+  initProgressBar,
+];
+
+function boot() {
+  for (const init of SECTION_INITS) {
+    // One failing section must never take down the rest of the deck.
+    try {
+      init();
+    } catch (err) {
+      console.error(`[deck] "${init.name}" failed to initialise:`, err);
+    }
+  }
+  document.documentElement.classList.add('deck-ready');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot, { once: true });
+} else {
+  boot();
+}
 
 /* ============================================
    GLOBAL UTILITIES & REDUCED MOTION CHECK
    ============================================ */
+function media(query) {
+  // Guard for very old browsers / non-browser environments where
+  // matchMedia is unavailable — never let a feature probe throw.
+  if (typeof window.matchMedia !== 'function') return false;
+  return window.matchMedia(query).matches;
+}
+
 function checkReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return media('(prefers-reduced-motion: reduce)');
+}
+
+/** Single source of truth for the desktop breakpoint (mirrors style.css). */
+const DESKTOP_QUERY = '(min-width: 992px)';
+function isDesktop() {
+  // Fall back to a width comparison if matchMedia is missing.
+  if (typeof window.matchMedia !== 'function') return window.innerWidth >= 992;
+  return media(DESKTOP_QUERY);
+}
+
+/** Registry of every timer we start, so nothing leaks on teardown. */
+const timers = new Set();
+function trackInterval(fn, ms) {
+  const id = setInterval(fn, ms);
+  timers.add(id);
+  return id;
+}
+function clearTracked(id) {
+  clearInterval(id);
+  timers.delete(id);
+}
+window.addEventListener('pagehide', () => {
+  timers.forEach(clearInterval);
+  timers.clear();
+});
+
+/** rAF-throttles a scroll/resize handler so we never layout-thrash. */
+function rafThrottle(fn) {
+  let queued = false;
+  return function throttled(...args) {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      fn.apply(this, args);
+    });
+  };
 }
 
 /**
@@ -121,15 +195,30 @@ function initHero() {
   if (eyebrow) {
     const originalText = eyebrow.getAttribute('data-scramble') || "CLOUD STORAGE SERVICES";
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/$-#@";
-    let iterations = 0;
-    const interval = setInterval(() => {
-      eyebrow.innerText = originalText.split('').map((char, index) => {
-        if (index < iterations) return originalText[index];
-        if (char === ' ') return ' ';
-        return chars[Math.floor(Math.random() * chars.length)];
-      }).join('');
-      if (iterations >= originalText.length) clearInterval(interval);
-      iterations += 1/3;
+
+    // Integer step counter: 3 frames per resolved character, so the reveal
+    // speed is explicit rather than hidden in a fractional accumulator.
+    const FRAMES_PER_CHAR = 3;
+    const totalFrames = originalText.length * FRAMES_PER_CHAR;
+    let frame = 0;
+
+    const interval = trackInterval(() => {
+      const resolved = Math.floor(frame / FRAMES_PER_CHAR);
+
+      eyebrow.textContent = originalText
+        .split('')
+        .map((char, index) => {
+          if (index < resolved) return originalText[index];
+          if (char === ' ') return ' ';
+          return chars[Math.floor(Math.random() * chars.length)];
+        })
+        .join('');
+
+      if (frame >= totalFrames) {
+        eyebrow.textContent = originalText; // guarantee a clean final state
+        clearTracked(interval);
+      }
+      frame += 1;
     }, 35);
   }
 
@@ -232,14 +321,21 @@ function initStorageTypes() {
   const prefersReduced = checkReducedMotion();
   const cards = document.querySelectorAll('#fundamentals .stagger-item');
 
-  // Keyboard accessibility for 3D flip cards
+  // Keyboard accessibility for 3D flip cards.
+  // aria-expanded is kept in sync so screen readers announce the state change.
   cards.forEach(card => {
-    const toggleFlip = () => card.classList.toggle('is-flipped');
-    
+    const toggleFlip = () => {
+      const flipped = card.classList.toggle('is-flipped');
+      card.setAttribute('aria-expanded', String(flipped));
+    };
+
     card.addEventListener('click', toggleFlip);
     card.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
+        toggleFlip();
+      }
+      if (e.key === 'Escape' && card.classList.contains('is-flipped')) {
         toggleFlip();
       }
     });
@@ -277,21 +373,38 @@ function initEngineRoom() {
   const engineSection = document.getElementById('engine-room');
   const simBtn = document.getElementById('simulate-failure-btn');
 
-  // Prepare static fallback if reduced motion
+  const FAILED_MSG = '<strong>⚠ SERVER 1 FAILED!</strong> Automated routing switch bypassed the node in 4ms. Zero client errors occurred.';
+  const HEALTHY_MSG = "If one server fails? You'd never know. The other copies keep your data available without interruption.";
+
+  // Prepare static fallback if reduced motion.
+  // Feature parity with the animated branch: the simulation still toggles both
+  // ways, only the motion is removed.
   if (prefersReduced) {
     const intEl = document.getElementById('durability-integer');
     const ninesEl = document.getElementById('durability-nines');
-    if (intEl) intEl.innerText = '99';
-    if (ninesEl) ninesEl.innerText = '999999999';
-    
+    if (intEl) intEl.textContent = '99';
+    if (ninesEl) ninesEl.textContent = '999999999';
+
     if (simBtn) {
+      let failed = false;
       simBtn.addEventListener('click', () => {
         const badge = document.getElementById('badge-availability');
         const srv1 = document.getElementById('node-server1');
-        if (badge) badge.setAttribute('opacity', '1');
-        if (srv1) srv1.style.opacity = '0.3';
+        const reroute = document.getElementById('path-reroute1');
         const text = document.getElementById('failure-status-text');
-        if (text) text.innerText = 'Server 1 simulated offline! Traffic instantly rerouted via Server 2 & 3 without data loss.';
+        const rect = srv1 && srv1.querySelector('rect');
+        const led = srv1 && srv1.querySelector('.status-led');
+
+        failed = !failed;
+        simBtn.textContent = failed ? 'Reset Server 1 Status' : 'Simulate Server Failure';
+        simBtn.setAttribute('aria-pressed', String(failed));
+
+        if (badge) badge.setAttribute('opacity', failed ? '1' : '0');
+        if (reroute) reroute.setAttribute('opacity', failed ? '1' : '0');
+        if (srv1) srv1.style.opacity = failed ? '0.3' : '1';
+        if (rect) rect.setAttribute('stroke', failed ? '#FF5F56' : '#4FD1C5');
+        if (led) led.setAttribute('fill', failed ? '#FF5F56' : '#4FD1C5');
+        if (text) text.innerHTML = failed ? FAILED_MSG : HEALTHY_MSG;
       });
     }
     return;
@@ -314,14 +427,14 @@ function initEngineRoom() {
       // Animate digits of the decimal portion one by one
       const ninesEl = document.getElementById('durability-nines');
       if (ninesEl) {
-        ninesEl.innerText = '';
+        ninesEl.textContent = '';
         let count = 0;
-        const addNine = setInterval(() => {
+        const addNine = trackInterval(() => {
           if (count < 9) {
-            ninesEl.innerText += '9';
+            ninesEl.textContent += '9';
             count++;
           } else {
-            clearInterval(addNine);
+            clearTracked(addNine);
           }
         }, 60);
       }
@@ -367,13 +480,18 @@ function initEngineRoom() {
 
       if (!server1 || !badge) return;
 
+      // Guard the SVG internals the same way as every other lookup in this file.
+      const rect = server1.querySelector('rect');
+      const led = server1.querySelector('.status-led');
+
       if (!isFailed) {
         isFailed = true;
-        simBtn.innerText = "Reset Server 1 Status";
+        simBtn.textContent = "Reset Server 1 Status";
+        simBtn.setAttribute('aria-pressed', 'true');
 
         // Flash Server 1 red and drop opacity
-        server1.querySelector('rect').setAttribute('stroke', '#FF5F56');
-        server1.querySelector('.status-led').setAttribute('fill', '#FF5F56');
+        if (rect) rect.setAttribute('stroke', '#FF5F56');
+        if (led) led.setAttribute('fill', '#FF5F56');
         window.anime({
           targets: server1,
           opacity: 0.4,
@@ -391,14 +509,15 @@ function initEngineRoom() {
         });
 
         if (statusText) {
-          statusText.innerHTML = "<strong>⚠ SERVER 1 FAILED!</strong> Automated routing switch bypassed the node in 4ms. Zero client errors occurred.";
+          statusText.innerHTML = FAILED_MSG;
         }
       } else {
         // Reset simulation
         isFailed = false;
-        simBtn.innerText = "Simulate Server Failure";
-        server1.querySelector('rect').setAttribute('stroke', '#4FD1C5');
-        server1.querySelector('.status-led').setAttribute('fill', '#4FD1C5');
+        simBtn.textContent = "Simulate Server Failure";
+        simBtn.setAttribute('aria-pressed', 'false');
+        if (rect) rect.setAttribute('stroke', '#4FD1C5');
+        if (led) led.setAttribute('fill', '#4FD1C5');
 
         window.anime({
           targets: server1,
@@ -413,7 +532,7 @@ function initEngineRoom() {
         });
 
         if (statusText) {
-          statusText.innerText = "If one server fails? You'd never know. The other copies keep your data available without interruption.";
+          statusText.innerHTML = HEALTHY_MSG;
         }
       }
     });
@@ -578,8 +697,10 @@ function initBuildSteps() {
     return;
   }
 
-  // Bind step tracker progress line to window scroll position
-  const handleScroll = () => {
+  // Bind step tracker progress line to window scroll position.
+  // rAF-throttled: getBoundingClientRect() forces layout, so we read at most
+  // once per frame rather than once per scroll event.
+  const update = () => {
     const rect = tracker.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
 
@@ -589,10 +710,9 @@ function initBuildSteps() {
     let percent = (currentProgress / totalDistance) * 100;
     percent = Math.max(0, Math.min(100, percent));
 
-    // Determine orientation based on css media query width
-    const isDesktop = window.innerWidth >= 992;
+    // Orientation follows the same breakpoint the stylesheet uses.
     if (fillBar) {
-      if (isDesktop) {
+      if (isDesktop()) {
         fillBar.style.width = `${Math.min(80, percent * 0.8)}%`;
         fillBar.style.height = '3px';
       } else {
@@ -601,20 +721,20 @@ function initBuildSteps() {
       }
     }
 
-    // Highlight active step numbers sequentially
+    // Highlight active step numbers sequentially.
+    // steps.length + 1 buckets means step 1 lights up as soon as the tracker
+    // enters the viewport and the last completes just before it leaves.
     const activeStepIdx = Math.floor((percent / 100) * (steps.length + 1));
     steps.forEach((step, idx) => {
-      if (idx <= activeStepIdx) {
-        step.classList.add('is-active');
-      } else {
-        step.classList.remove('is-active');
-      }
+      step.classList.toggle('is-active', idx <= activeStepIdx);
     });
   };
 
+  const handleScroll = rafThrottle(update);
+
   window.addEventListener('scroll', handleScroll, { passive: true });
-  window.addEventListener('resize', handleScroll);
-  handleScroll(); // Initial computation
+  window.addEventListener('resize', handleScroll, { passive: true });
+  update(); // Initial computation
 }
 
 /* ============================================
@@ -622,6 +742,7 @@ function initBuildSteps() {
    ============================================ */
 function initLiveDemo() {
   const playBtn = document.getElementById('demo-play-btn');
+  const replayBtn = document.getElementById('demo-replay-btn');
   const overlay = document.getElementById('demo-overlay');
   const terminal = document.getElementById('demo-terminal');
   const output = document.getElementById('terminal-lines');
@@ -638,30 +759,54 @@ function initLiveDemo() {
     { text: "✔ Live cloud bucket operational in 4.2 seconds.", type: "success", delay: 3400 }
   ];
 
-  playBtn.addEventListener('click', () => {
+  const lineClass = (type) =>
+    `terminal-line terminal-${type === 'cmd' ? 'prompt' : type === 'success' ? 'success' : 'comment'}`;
+
+  // Every pending timeout is tracked so a replay can cancel the previous run
+  // instead of interleaving two transcripts.
+  let pending = [];
+  let isPlaying = false;
+
+  const cancelPending = () => {
+    pending.forEach(clearTimeout);
+    pending = [];
+  };
+
+  const setReplayState = (enabled) => {
+    if (!replayBtn) return;
+    replayBtn.hidden = false;
+    replayBtn.disabled = !enabled;
+  };
+
+  const run = () => {
+    if (isPlaying) return; // ignore repeat clicks mid-run
+    cancelPending();
+
     if (overlay) overlay.hidden = true;
     terminal.hidden = false;
-    output.innerHTML = "";
+    output.replaceChildren();
 
-    const prefersReduced = checkReducedMotion();
-
-    if (prefersReduced) {
+    if (checkReducedMotion()) {
       // Show full simulation instantly
       simulationLines.forEach(item => {
         const div = document.createElement('div');
-        div.className = `terminal-line terminal-${item.type === 'cmd' ? 'prompt' : item.type === 'success' ? 'success' : 'comment'}`;
-        div.innerText = item.text;
+        div.className = lineClass(item.type);
+        div.textContent = item.text;
         output.appendChild(div);
       });
+      setReplayState(true);
       return;
     }
 
+    isPlaying = true;
+    setReplayState(false);
+
     // Type out simulation sequence dynamically
-    simulationLines.forEach(item => {
-      setTimeout(() => {
+    simulationLines.forEach((item, index) => {
+      const id = setTimeout(() => {
         const div = document.createElement('div');
-        div.className = `terminal-line terminal-${item.type === 'cmd' ? 'prompt' : item.type === 'success' ? 'success' : 'comment'}`;
-        div.innerText = item.text;
+        div.className = lineClass(item.type);
+        div.textContent = item.text;
         output.appendChild(div);
         terminal.scrollTop = terminal.scrollHeight;
 
@@ -674,9 +819,20 @@ function initLiveDemo() {
             easing: 'easeOutQuad'
           });
         }
+
+        if (index === simulationLines.length - 1) {
+          isPlaying = false;
+          setReplayState(true);
+        }
       }, item.delay);
+      pending.push(id);
     });
-  });
+  };
+
+  playBtn.addEventListener('click', run);
+  if (replayBtn) replayBtn.addEventListener('click', run);
+
+  window.addEventListener('pagehide', cancelPending);
 }
 
 /* ============================================
@@ -880,4 +1036,116 @@ function initConclusion() {
       }
     });
   });
+}
+
+/* ============================================
+   PRESENTER: KEYBOARD SECTION NAVIGATION
+   Arrow/Page keys, Home/End, and "?" for help.
+   ============================================ */
+function initKeyboardNav() {
+  const sections = Array.from(document.querySelectorAll('section[id]'));
+  if (!sections.length) return;
+
+  const behavior = () => (checkReducedMotion() ? 'auto' : 'smooth');
+
+  /** Index of the section currently filling most of the viewport. */
+  const currentIndex = () => {
+    const mid = window.innerHeight / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    sections.forEach((sec, i) => {
+      const rect = sec.getBoundingClientRect();
+      const dist = Math.abs(rect.top + rect.height / 2 - mid);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+    });
+    return best;
+  };
+
+  const goTo = (index) => {
+    const clamped = Math.max(0, Math.min(sections.length - 1, index));
+    sections[clamped].scrollIntoView({ behavior: behavior(), block: 'start' });
+    // Move focus for screen-reader users without stealing it visually.
+    const target = sections[clamped];
+    target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+  };
+
+  const isTypingTarget = (el) =>
+    el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (isTypingTarget(document.activeElement)) return;
+
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'PageDown':
+      case 'j':
+        e.preventDefault();
+        goTo(currentIndex() + 1);
+        break;
+      case 'ArrowLeft':
+      case 'PageUp':
+      case 'k':
+        e.preventDefault();
+        goTo(currentIndex() - 1);
+        break;
+      case 'Home':
+        e.preventDefault();
+        goTo(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        goTo(sections.length - 1);
+        break;
+      case '?':
+        e.preventDefault();
+        toggleShortcutHelp();
+        break;
+      case 'Escape':
+        closeShortcutHelp();
+        break;
+      default:
+        break;
+    }
+  });
+}
+
+function toggleShortcutHelp() {
+  const panel = document.getElementById('shortcut-help');
+  if (!panel) return;
+  const open = panel.hasAttribute('hidden');
+  if (open) {
+    panel.removeAttribute('hidden');
+  } else {
+    panel.setAttribute('hidden', '');
+  }
+}
+
+function closeShortcutHelp() {
+  const panel = document.getElementById('shortcut-help');
+  if (panel) panel.setAttribute('hidden', '');
+}
+
+/* ============================================
+   GLOBAL SCROLL PROGRESS BAR
+   ============================================ */
+function initProgressBar() {
+  const bar = document.getElementById('scroll-progress');
+  if (!bar) return;
+
+  const update = rafThrottle(() => {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const pct = max > 0 ? (doc.scrollTop / max) * 100 : 0;
+    bar.style.width = `${pct}%`;
+    bar.parentElement?.setAttribute('aria-valuenow', String(Math.round(pct)));
+  });
+
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+  update();
 }

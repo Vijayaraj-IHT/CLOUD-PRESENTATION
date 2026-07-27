@@ -4,16 +4,46 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cloud Storage Services — Behind Every Upload</title>
-    <!-- Google Fonts: Space Grotesk, Inter, JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <!-- Stylesheet -->
+    <meta name="description" content="An interactive presentation on how cloud storage actually works: replication, durability, provider trade-offs, and how to build your own cloud project.">
+    <meta name="author" content="Cloud Computing 101">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0E1A2B">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Cloud Storage Services — Behind Every Upload">
+    <meta property="og:description" content="What actually happens behind the upload button: replication, 11 nines of durability, and building your own cloud project.">
+
+    <!-- Self-hosted fonts + stylesheet (no network required) -->
+    <link rel="stylesheet" href="./vendor/fonts.css">
     <link rel="stylesheet" href="./style.css">
-    <!-- Anime.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
   </head>
   <body>
+    <a href="#hero" class="skip-link">Skip to content</a>
+    <noscript>
+      <div class="noscript-banner">
+        JavaScript is disabled — the deck is fully readable, but animations and the
+        interactive demos (poll, failure simulation, terminal) are unavailable.
+      </div>
+    </noscript>
+    <!-- ============ GLOBAL SCROLL PROGRESS ============ -->
+    <div class="scroll-progress-track" role="progressbar" aria-label="Presentation progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div id="scroll-progress" class="scroll-progress-bar"></div>
+    </div>
+
+    <!-- ============ KEYBOARD SHORTCUT HELP (toggled with ?) ============ -->
+    <div id="shortcut-help" class="shortcut-help" role="dialog" aria-modal="false" aria-label="Keyboard shortcuts" hidden>
+      <h2 class="shortcut-help__title font-mono">Keyboard shortcuts</h2>
+      <dl class="shortcut-help__list font-mono">
+        <div><dt><kbd>→</kbd> <kbd>PgDn</kbd> <kbd>J</kbd></dt><dd>Next section</dd></div>
+        <div><dt><kbd>←</kbd> <kbd>PgUp</kbd> <kbd>K</kbd></dt><dd>Previous section</dd></div>
+        <div><dt><kbd>Home</kbd></dt><dd>First section</dd></div>
+        <div><dt><kbd>End</kbd></dt><dd>Last section</dd></div>
+        <div><dt><kbd>?</kbd></dt><dd>Toggle this panel</dd></div>
+        <div><dt><kbd>Esc</kbd></dt><dd>Close</dd></div>
+      </dl>
+    </div>
+
     <!-- ============ GLOBAL NAVIGATION & DATA TRAIL ============ -->
     <nav id="dot-nav" class="dot-nav" aria-label="Section navigation">
       <ul class="dot-nav__list">
@@ -130,7 +160,7 @@
         <!-- 3 Cards with 3D flip-on-hover & keyboard toggles -->
         <div class="grid grid--3-col fundamentals__cards">
           <!-- Card 1: Object -->
-          <article class="flip-card stagger-item" tabindex="0" aria-label="Object Storage. Press Enter or Space to reveal details.">
+          <article class="flip-card stagger-item" tabindex="0" role="button" aria-expanded="false" aria-label="Object Storage. Press Enter or Space to reveal details.">
             <div class="flip-card__inner">
               <div class="flip-card__front">
                 <span class="card-type font-mono text-accent">TYPE 01</span>
@@ -145,7 +175,7 @@
           </article>
 
           <!-- Card 2: Block -->
-          <article class="flip-card stagger-item" tabindex="0" aria-label="Block Storage. Press Enter or Space to reveal details.">
+          <article class="flip-card stagger-item" tabindex="0" role="button" aria-expanded="false" aria-label="Block Storage. Press Enter or Space to reveal details.">
             <div class="flip-card__inner">
               <div class="flip-card__front">
                 <span class="card-type font-mono text-accent">TYPE 02</span>
@@ -160,7 +190,7 @@
           </article>
 
           <!-- Card 3: File -->
-          <article class="flip-card stagger-item" tabindex="0" aria-label="File Storage. Press Enter or Space to reveal details.">
+          <article class="flip-card stagger-item" tabindex="0" role="button" aria-expanded="false" aria-label="File Storage. Press Enter or Space to reveal details.">
             <div class="flip-card__inner">
               <div class="flip-card__front">
                 <span class="card-type font-mono text-accent">TYPE 03</span>
@@ -544,9 +574,13 @@
             </div>
             <!-- Simulated Interactive Terminal display once played -->
             <div id="demo-terminal" class="terminal-view font-mono" hidden>
-              <div class="terminal-output" id="terminal-lines"></div>
+              <div class="terminal-output" id="terminal-lines" role="log" aria-live="polite" aria-label="Simulated terminal output"></div>
             </div>
           </div>
+        </div>
+
+        <div class="demo-controls">
+          <button id="demo-replay-btn" class="btn btn--outline font-mono" hidden>Replay simulation</button>
         </div>
         
         <p class="demo-caption font-body text-muted text-center text-sm">
