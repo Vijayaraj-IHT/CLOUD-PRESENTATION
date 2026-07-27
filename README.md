@@ -78,6 +78,7 @@ tools/
   smoke.mjs         Runtime tests against the built bundle (needs jsdom)
 vite.config.ts      Single-file build config
 CODE_ANALYSIS.md    Architectural review that motivated this build
+SNIPPETS.md         18 reusable, dependency-free snippets extracted from this code
 ```
 
 ### Editing content
